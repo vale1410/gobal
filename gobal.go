@@ -10,7 +10,7 @@ import (
 	"runtime"
 )
 
-var filename = flag.String("f", "x", "Path to graph file.")
+var filename = flag.String("f", "", "Path to file. Each line is a shell command.")
 var cap = flag.Int("n", 1, "Number of threats in parallel.")
 
 type Task struct {
