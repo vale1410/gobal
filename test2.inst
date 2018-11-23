@@ -1,0 +1,4 @@
+sleep 10; echo done 0;
+/bin/sleep 3; echo done 1
+/bin/sleep 2; echo done 2;
+/bin/sleep 1; echo done 3;

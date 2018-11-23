@@ -20,7 +20,7 @@ type Task struct {
 
 func main() {
 	flag.Parse()
-	fmt.Println("GOBAL: a simple execution balancer. Feed it a file with one line per action and it will balance on n processors.")
+	fmt.Println("GOBAL 1.0Alpha: a simple execution balancer. It reads a file containing one lines and runs these continuously on n processors.")
 	fmt.Println("RunWith", *cap, "hMaxGoroutines", runtime.GOMAXPROCS(0), "CPUs", runtime.NumCPU())
 
 	task := make(chan Task)
