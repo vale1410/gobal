@@ -11,7 +11,7 @@ import (
 )
 
 var filename = flag.String("f", "", "Path to file. Each line is a shell command.")
-var cap = flag.Int("n", 1, "Number of threats in parallel.")
+var capFlag = flag.Int("n", 1, "Number of threats in parallel.")
 
 type Task struct {
 	id int
@@ -20,13 +20,13 @@ type Task struct {
 
 func main() {
 	flag.Parse()
-	fmt.Println("GOBAL 1.0Alpha: a simple execution balancer. It reads a file containing one lines and runs these continuously on n processors.")
-	fmt.Println("RunWith", *cap, "hMaxGoroutines", runtime.GOMAXPROCS(0), "CPUs", runtime.NumCPU())
+	fmt.Println("GOBAL 1.1 Beta: a simple execution balancer. It reads a file containing one-liners of shell executions and runs these continuously on n processors.")
+	fmt.Println("RunWith", *capFlag, "hMaxGoroutines", runtime.GOMAXPROCS(0), "CPUs", runtime.NumCPU())
 
 	task := make(chan Task)
 	quit := make(chan bool)
 
-	for i := 0; i < *cap; i++ {
+	for i := 0; i < *capFlag; i++ {
 		go startWorker(i, task, quit)
 	}
 
@@ -40,7 +40,7 @@ func main() {
 		i++
 	}
 
-	for i := 0; i < *cap; i++ {
+	for i := 0; i < *capFlag; i++ {
 		quit <- true
 	}
 	close(quit)
