@@ -13,7 +13,7 @@ import (
 )
 
 var filename = flag.String("f", "", "Path to file. Each line is a shell command.")
-var cap = flag.Int("n", 1, "Number of threats in parallel.")
+var capFlag = flag.Int("n", 1, "Number of threats in parallel.")
 var vFlag = flag.Bool("v", false, "Outputs version information.")
 var tot int
 
@@ -34,14 +34,15 @@ func main() {
 		fmt.Println("Please specify task file.")
 		os.Exit(1)
 	}
-	fmt.Println("RunWith", *cap, "hMaxGoroutines", runtime.GOMAXPROCS(0), "CPUs", runtime.NumCPU())
+
+	fmt.Println("RunWith", *capFlag, "hMaxGoroutines", runtime.GOMAXPROCS(0), "CPUs", runtime.NumCPU())
 	tot, _ = lineCounter()
-	fmt.Println("Reading ", *filename, " with ", tot, "tasks.")
+	fmt.Println("Starting", *filename, "with", tot, "tasks.")
 
 	task := make(chan Task)
 	quit := make(chan bool)
 
-	for i := 0; i < *cap; i++ {
+	for i := 0; i < *capFlag; i++ {
 		go startWorker(i, task, quit)
 	}
 
@@ -59,7 +60,7 @@ func main() {
 		i++
 	}
 
-	for i := 0; i < *cap; i++ {
+	for i := 0; i < *capFlag; i++ {
 		quit <- true
 	}
 	close(quit)
@@ -77,7 +78,7 @@ func startWorker(i int, task chan Task, quit chan bool) {
 	for {
 		select {
 		case t := <-task:
-			fmt.Printf("%v \\ %v\t: %s\n", t.id, tot, t.s)
+			fmt.Printf("%v\\%v\t: %s\n", t.id, tot, t.s)
 
 			f, err := ioutil.TempFile(".", "ex")
 			check(err)
