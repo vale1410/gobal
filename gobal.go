@@ -2,8 +2,10 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"flag"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -12,6 +14,8 @@ import (
 
 var filename = flag.String("f", "", "Path to file. Each line is a shell command.")
 var cap = flag.Int("n", 1, "Number of threats in parallel.")
+var vFlag = flag.Bool("v", false, "Outputs version information.")
+var tot int
 
 type Task struct {
 	id int
@@ -19,9 +23,20 @@ type Task struct {
 }
 
 func main() {
+	infoString := "GOBAL 1.1: a simple execution balancer. It reads a file containing one lines and runs these continuously on n processors."
 	flag.Parse()
-	fmt.Println("GOBAL 1.0Alpha: a simple execution balancer. It reads a file containing one lines and runs these continuously on n processors.")
+	if *vFlag {
+		fmt.Println(infoString)
+		os.Exit(0)
+	}
+	if *filename == "" {
+		fmt.Println(infoString)
+		fmt.Println("Please specify task file.")
+		os.Exit(1)
+	}
 	fmt.Println("RunWith", *cap, "hMaxGoroutines", runtime.GOMAXPROCS(0), "CPUs", runtime.NumCPU())
+	tot, _ = lineCounter()
+	fmt.Println("Reading ", *filename, " with ", tot, "tasks.")
 
 	task := make(chan Task)
 	quit := make(chan bool)
@@ -31,8 +46,12 @@ func main() {
 	}
 
 	// open a file
-	file, _ := os.Open(*filename)
+	file, err := os.Open(*filename)
+	if err != nil {
+		panic(err)
+	}
 	defer file.Close()
+
 	scanner := bufio.NewScanner(file)
 	var i int
 	for scanner.Scan() {
@@ -58,7 +77,7 @@ func startWorker(i int, task chan Task, quit chan bool) {
 	for {
 		select {
 		case t := <-task:
-			fmt.Println(t.id, "\t:", t.s)
+			fmt.Printf("%v \\ %v\t: %s\n", t.id, tot, t.s)
 
 			f, err := ioutil.TempFile(".", "ex")
 			check(err)
@@ -74,6 +93,30 @@ func startWorker(i int, task chan Task, quit chan bool) {
 
 		case <-quit:
 			return
+		}
+	}
+}
+
+func lineCounter() (int, error) {
+	r, err := os.Open(*filename)
+	if err != nil {
+		panic(err)
+	}
+	defer r.Close()
+	buf := make([]byte, 32*1024)
+	count := 0
+	lineSep := []byte{'\n'}
+
+	for {
+		c, err := r.Read(buf)
+		count += bytes.Count(buf[:c], lineSep)
+
+		switch {
+		case err == io.EOF:
+			return count, nil
+
+		case err != nil:
+			return count, err
 		}
 	}
 }
