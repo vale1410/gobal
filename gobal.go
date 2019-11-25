@@ -23,7 +23,7 @@ type Task struct {
 }
 
 func main() {
-	infoString := "GOBAL 1.1: a simple execution balancer. It reads a file containing one lines and runs these continuously on n processors."
+	infoString := "GOBAL 1.2: a simple execution balancer. It reads a file containing one lines and runs these continuously on n processors."
 	flag.Parse()
 	if *vFlag {
 		fmt.Println(infoString)
