@@ -78,7 +78,7 @@ func startWorker(i int, task chan Task, quit chan bool) {
 	for {
 		select {
 		case t := <-task:
-			fmt.Printf("%v\\%v\t: %s\n", t.id, tot, t.s)
+			fmt.Printf("%v\\%v\t: %s\n", t.id+1, tot, t.s)
 
 			f, err := ioutil.TempFile(".", "ex")
 			check(err)
