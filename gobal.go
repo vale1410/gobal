@@ -7,9 +7,11 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"os"
 	"os/exec"
 	"runtime"
+	"time"
 )
 
 var filename = flag.String("f", "", "Path to file. Each line is a shell command.")
@@ -35,9 +37,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Println("RunWith", *capFlag, "hMaxGoroutines", runtime.GOMAXPROCS(0), "CPUs", runtime.NumCPU())
+	start := time.Now()
+	log.Println("RunWith", *capFlag, "hMaxGoroutines", runtime.GOMAXPROCS(0), "CPUs", runtime.NumCPU())
 	tot, _ = lineCounter()
-	fmt.Println("Starting", *filename, "with", tot, "tasks.")
+	log.Println("Starting", *filename, "with", tot, "tasks.")
 
 	task := make(chan Task)
 	quit := make(chan bool)
@@ -66,6 +69,8 @@ func main() {
 	close(quit)
 	close(task)
 
+	elapsed := time.Since(start)
+	log.Printf("Gobal run took %s", elapsed)
 }
 
 func check(e error) {
@@ -78,7 +83,7 @@ func startWorker(i int, task chan Task, quit chan bool) {
 	for {
 		select {
 		case t := <-task:
-			fmt.Printf("%v\\%v\t: %s\n", t.id+1, tot, t.s)
+			log.Printf("%v\\%v\t: %s\n", t.id+1, tot, t.s)
 
 			f, err := ioutil.TempFile(".", "ex")
 			check(err)
@@ -87,7 +92,7 @@ func startWorker(i int, task chan Task, quit chan bool) {
 			f.Close()
 
 			if err := exec.Command("sh", f.Name()).Run(); err != nil {
-				fmt.Println(i, ": error", err.Error())
+				log.Println(i, ": error", err.Error())
 			}
 			err = os.Remove(f.Name())
 			check(err)
