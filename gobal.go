@@ -61,6 +61,13 @@ func main() {
 	for scanner.Scan() {
 		task <- Task{i, scanner.Text()}
 		i++
+		if i%10 == 5 {
+			elapsed := time.Since(start)
+			factor := float64(tot-i+*capFlag) / float64(i)
+			estimatedTime := time.Duration(factor*float64(elapsed.Milliseconds())) * time.Millisecond
+			log.Printf("elap:%s; estim:%s; total:%s", elapsed, estimatedTime, elapsed+estimatedTime)
+			log.Println("compl:", time.Now().Add(estimatedTime).Format("2006.01.02 15:04:05"))
+		}
 	}
 
 	for i := 0; i < *capFlag; i++ {
