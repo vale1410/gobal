@@ -25,7 +25,7 @@ type Task struct {
 }
 
 func main() {
-	infoString := "GOBAL 1.2: a simple execution balancer. It reads a file containing one lines and runs these continuously on n processors."
+	infoString := "GOBAL 1.2.1: a simple execution balancer. It reads a file containing one lines and runs these continuously on n processors."
 	flag.Parse()
 	if *vFlag {
 		fmt.Println(infoString)
@@ -65,7 +65,7 @@ func main() {
 			elapsed := time.Since(start)
 			factor := float64(tot-i+1) / float64(i-*capFlag)
 			estimatedTime := time.Duration(factor*float64(elapsed.Milliseconds())) * time.Millisecond
-			log.Printf("elap:%s; estim:%s; total:%s", elapsed, estimatedTime, elapsed+estimatedTime)
+			log.Printf("elap:%s; remain:%s; total:%s", elapsed.Round(time.Second), estimatedTime.Round(time.Second), (elapsed + estimatedTime).Round(time.Second))
 			log.Println("compl:", time.Now().Add(estimatedTime).Format("02.01.2006 15:04:05"))
 		}
 	}
