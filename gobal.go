@@ -65,8 +65,7 @@ func main() {
 			elapsed := time.Since(start)
 			factor := float64(tot-i+1) / float64(i-*capFlag)
 			estimatedTime := time.Duration(factor*float64(elapsed.Milliseconds())) * time.Millisecond
-			log.Printf("elap:%s; remain:%s; total:%s", elapsed.Round(time.Second), estimatedTime.Round(time.Second), (elapsed + estimatedTime).Round(time.Second))
-			log.Println("compl:", time.Now().Add(estimatedTime).Format("02.01.2006 15:04:05"))
+			log.Printf("======   elap:%s; remain:%s; total:%s; compl:%s =====", elapsed.Round(time.Second), estimatedTime.Round(time.Second), (elapsed + estimatedTime).Round(time.Second), time.Now().Add(estimatedTime).Format("02.01.2006 15:04:05"))
 		}
 	}
 
